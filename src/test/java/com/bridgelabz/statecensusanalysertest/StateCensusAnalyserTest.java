@@ -24,7 +24,7 @@ public class StateCensusAnalyserTest {
     }
 
     @Test
-    public void givenIncorrectIndianStatesCensusCSVFile_WhenMatchNoOfRecord_ThenThrowCustomException() throws StateCensusAnalyserException {
+    public void givenIncorrectIndianStatesCensusCSVFile_WhenMatchNoOfRecord_ThenThrowCustomException() {
         try {
             int numberOfRecord = stateCensusAnalyser.loadCSVDataFile(CSV_FILE_INCORRECT_PATH);
         } catch (StateCensusAnalyserException e) {

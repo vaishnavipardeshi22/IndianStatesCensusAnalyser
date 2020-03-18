@@ -16,16 +16,14 @@ public class StateCensusAnalyser {
     //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN CSV FILE
     public int loadCSVDataFile(String csvFilePath) throws StateCensusAnalyserException {
         int numberOfRecords = 0;
-        String fileFormat=csvFilePath.substring(csvFilePath.lastIndexOf(".")+1);
-
-        try {
-            if (!fileFormat.equals("csv")) {
-                throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
-            }
-            Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));
+        String fileFormat = csvFilePath.substring(csvFilePath.lastIndexOf(".") + 1);
+        if (!fileFormat.equals("csv")) {
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
+        }
+        try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
             CsvToBean<CSVStateCensus> csvToBean = new CsvToBeanBuilder(reader)
                     .withType(CSVStateCensus.class)
-                    .withIgnoreLeadingWhiteSpace(true)
+                    .withIgnoreLeadingWhiteSpace(false)
                     .build();
             Iterator<CSVStateCensus> csvStateCensusIterator = csvToBean.iterator();
 
@@ -33,6 +31,8 @@ public class StateCensusAnalyser {
                 numberOfRecords++;
                 csvStateCensusIterator.next();
             }
+        } catch (RuntimeException e) {
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER, "Incorrect file.");
         } catch (NoSuchFileException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
         } catch (IOException e) {

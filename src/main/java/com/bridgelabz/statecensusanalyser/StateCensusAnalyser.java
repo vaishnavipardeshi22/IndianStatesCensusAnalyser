@@ -14,11 +14,15 @@ import java.util.Iterator;
 public class StateCensusAnalyser {
 
     //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN CSV FILE
-    public int loadCSVDataFile(String csvFilePath) throws IOException, StateCensusAnalyserException {
+    public int loadCSVDataFile(String csvFilePath) throws StateCensusAnalyserException {
         int numberOfRecords = 0;
-        try (
-                Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));
-        ) {
+        String fileFormat=csvFilePath.substring(csvFilePath.lastIndexOf(".")+1);
+
+        try {
+            if (!fileFormat.equals("csv")) {
+                throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
+            }
+            Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));
             CsvToBean<CSVStateCensus> csvToBean = new CsvToBeanBuilder(reader)
                     .withType(CSVStateCensus.class)
                     .withIgnoreLeadingWhiteSpace(true)
@@ -31,6 +35,8 @@ public class StateCensusAnalyser {
             }
         } catch (NoSuchFileException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
+        } catch (IOException e) {
+            e.getStackTrace();
         }
         return numberOfRecords;
     }

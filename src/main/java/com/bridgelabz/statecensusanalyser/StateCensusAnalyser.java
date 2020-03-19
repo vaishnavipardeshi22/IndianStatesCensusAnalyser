@@ -50,12 +50,10 @@ public class StateCensusAnalyser {
     public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws StateCensusAnalyserException {
         int numberOfRecords = 0;
         String fileFormat = stateCodeDataCsvFilePath.substring(stateCodeDataCsvFilePath.lastIndexOf(".") + 1);
-
-        try {
-            if (!fileFormat.equals("csv")) {
-                throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
-            }
-            Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath));
+        if (!fileFormat.equals("csv")) {
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
+        }
+        try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
             CsvToBean<CSVStateCode> csvToBean = new CsvToBeanBuilder(reader)
                     .withType(CSVStateCode.class)
                     .withIgnoreLeadingWhiteSpace(true)
@@ -66,7 +64,9 @@ public class StateCensusAnalyser {
                 numberOfRecords++;
                 csvStateCodeIterator.next();
             }
-        } catch (NoSuchFileException e) {
+        } catch (RuntimeException e) {
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER, "Incorrect delimiter.");
+        }catch (NoSuchFileException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
         } catch (IOException e) {
             e.printStackTrace();

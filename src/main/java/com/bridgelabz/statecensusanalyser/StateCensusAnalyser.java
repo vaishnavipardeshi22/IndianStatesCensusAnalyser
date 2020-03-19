@@ -37,7 +37,7 @@ public class StateCensusAnalyser {
                 csvStateCensusIterator.next();
             }
         } catch (RuntimeException e) {
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER, "Incorrect file.");
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER, "Incorrect delimiter or header.");
         } catch (NoSuchFileException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
         } catch (IOException e) {
@@ -47,7 +47,7 @@ public class StateCensusAnalyser {
     }
 
     //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CENSUS CSV FILE
-    public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws IOException {
+    public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws StateCensusAnalyserException {
         int numberOfRecords = 0;
         try (
                 Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath));
@@ -62,6 +62,10 @@ public class StateCensusAnalyser {
                 numberOfRecords++;
                 csvStateCodeIterator.next();
             }
+        } catch (NoSuchFileException e) {
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return numberOfRecords;
     }

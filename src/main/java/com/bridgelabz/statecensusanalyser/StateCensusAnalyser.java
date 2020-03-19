@@ -18,8 +18,8 @@ public class StateCensusAnalyser {
         System.out.println("******************** WELCOME TO INDIAN STATES CENSUS ANALYSER ********************");
     }
 
-    //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN CSV FILE
-    public int loadCSVDataFile(String csvFilePath) throws StateCensusAnalyserException {
+    //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CENSUS CSV FILE
+    public int loadCSVDataFileForStateCensusData(String csvFilePath) throws StateCensusAnalyserException {
         int numberOfRecords = 0;
         String fileFormat = csvFilePath.substring(csvFilePath.lastIndexOf(".") + 1);
         if (!fileFormat.equals("csv")) {
@@ -42,6 +42,26 @@ public class StateCensusAnalyser {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
         } catch (IOException e) {
             e.getStackTrace();
+        }
+        return numberOfRecords;
+    }
+
+    //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CENSUS CSV FILE
+    public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws IOException {
+        int numberOfRecords = 0;
+        try (
+                Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath));
+        ) {
+            CsvToBean<CSVStateCode> csvToBean = new CsvToBeanBuilder(reader)
+                    .withType(CSVStateCode.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build();
+            Iterator<CSVStateCode> csvStateCodeIterator = csvToBean.iterator();
+
+            while (csvStateCodeIterator.hasNext()) {
+                numberOfRecords++;
+                csvStateCodeIterator.next();
+            }
         }
         return numberOfRecords;
     }

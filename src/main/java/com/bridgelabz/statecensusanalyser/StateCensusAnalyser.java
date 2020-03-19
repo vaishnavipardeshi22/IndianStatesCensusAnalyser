@@ -46,12 +46,16 @@ public class StateCensusAnalyser {
         return numberOfRecords;
     }
 
-    //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CENSUS CSV FILE
+    //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CODE CSV FILE
     public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws StateCensusAnalyserException {
         int numberOfRecords = 0;
-        try (
-                Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath));
-        ) {
+        String fileFormat = stateCodeDataCsvFilePath.substring(stateCodeDataCsvFilePath.lastIndexOf(".") + 1);
+
+        try {
+            if (!fileFormat.equals("csv")) {
+                throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
+            }
+            Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath));
             CsvToBean<CSVStateCode> csvToBean = new CsvToBeanBuilder(reader)
                     .withType(CSVStateCode.class)
                     .withIgnoreLeadingWhiteSpace(true)

@@ -16,6 +16,7 @@ public class StateCensusAnalyserTest {
     private static final String STATE_CODE_DATA_CSV_FILE_INCORRECT_PATH = "src/test/resources/stateCode.csv";
     private static final String STATE_CODE_DATA_CSV_FILE_INCORRECT_TYPE = "src/test/resources/StateCode.pdf";
     private static final String STATE_CODE_DATA_CSV_FILE_INCORRECT_DELIMITER = "src/test/resources/StateCodeIncorrectDelimiter.csv";
+    private static final String STATE_CODE_DATA_CSV_FILE_INCORRECT_HEADER = "src/test/resources/StateCodeIncorrectHeader.csv";
     StateCensusAnalyser stateCensusAnalyser = new StateCensusAnalyser();
 
     @Test
@@ -96,6 +97,15 @@ public class StateCensusAnalyserTest {
     public void givenIncorrectDelimiterIndianStatesCodeCSVFile_WhenUnmatch_ThenThrowCustomException() {
         try {
             stateCensusAnalyser.loadCSVDataFileForStateCodeData(STATE_CODE_DATA_CSV_FILE_INCORRECT_DELIMITER);
+        } catch (StateCensusAnalyserException e) {
+            Assert.assertEquals(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER, e.type);
+        }
+    }
+
+    @Test
+    public void givenIncorrectHeaderIndianStatesCodeCSVFile_WhenUnmatch_ThenThrowCustomException() {
+        try {
+            stateCensusAnalyser.loadCSVDataFileForStateCodeData(STATE_CODE_DATA_CSV_FILE_INCORRECT_HEADER);
         } catch (StateCensusAnalyserException e) {
             Assert.assertEquals(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER, e.type);
         }

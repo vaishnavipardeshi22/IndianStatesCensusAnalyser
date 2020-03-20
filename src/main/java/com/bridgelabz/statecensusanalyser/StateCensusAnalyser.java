@@ -1,8 +1,6 @@
 package com.bridgelabz.statecensusanalyser;
 
 import com.bridgelabz.exception.StateCensusAnalyserException;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -25,8 +23,8 @@ public class StateCensusAnalyser {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
         }
         try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
-            Iterator<CSVStateCensus> csvStateCensusIterator = this.getCSVIterator(reader, CSVStateCensus.class);
-            return this.getCount(csvStateCensusIterator);
+            Iterator<CSVStateCensus> csvCensusIterator = new OpenCSVBuilder().getCSVIterator(reader, CSVStateCensus.class);
+            return this.getCount(csvCensusIterator);
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER, "Incorrect delimiter or header.");
         } catch (NoSuchFileException e) {
@@ -45,8 +43,8 @@ public class StateCensusAnalyser {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
         }
         try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
-            Iterator<CSVStateCode> csvStateCodeIterator = this.getCSVIterator(reader, CSVStateCode.class);
-            return this.getCount(csvStateCodeIterator);
+            Iterator<CSVStateCode> csvCensusIterator = new OpenCSVBuilder().getCSVIterator(reader, CSVStateCode.class);
+            return this.getCount(csvCensusIterator);
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER, "Incorrect delimiter or header.");
         } catch (NoSuchFileException e) {
@@ -64,14 +62,5 @@ public class StateCensusAnalyser {
             iterator.next();
         }
         return numberOfRecords;
-    }
-
-
-    private <T> Iterator<T> getCSVIterator(Reader reader, Class<T> csvClass) {
-        CsvToBeanBuilder<T> csvToBeanBuilder = new CsvToBeanBuilder(reader)
-                .withType(csvClass)
-                .withIgnoreLeadingWhiteSpace(true);
-        CsvToBean<T> csvToBean = csvToBeanBuilder.build();
-        return csvToBean.iterator();
     }
 }

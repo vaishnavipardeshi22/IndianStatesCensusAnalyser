@@ -20,22 +20,13 @@ public class StateCensusAnalyser {
 
     //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CENSUS CSV FILE
     public int loadCSVDataFileForStateCensusData(String csvFilePath) throws StateCensusAnalyserException {
-        int numberOfRecords = 0;
         String fileFormat = csvFilePath.substring(csvFilePath.lastIndexOf(".") + 1);
         if (!fileFormat.equals("csv")) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
         }
         try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
-            CsvToBean<CSVStateCensus> csvToBean = new CsvToBeanBuilder(reader)
-                    .withType(CSVStateCensus.class)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .build();
-            Iterator<CSVStateCensus> csvStateCensusIterator = csvToBean.iterator();
-
-            while (csvStateCensusIterator.hasNext()) {
-                numberOfRecords++;
-                csvStateCensusIterator.next();
-            }
+            Iterator<CSVStateCensus> csvStateCensusIterator = this.getCSVIterator(reader, CSVStateCensus.class);
+            return this.getCount(csvStateCensusIterator);
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER, "Incorrect delimiter or header.");
         } catch (NoSuchFileException e) {
@@ -43,7 +34,7 @@ public class StateCensusAnalyser {
         } catch (IOException e) {
             e.getStackTrace();
         }
-        return numberOfRecords;
+        return 0;
     }
 
     //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CODE CSV FILE
@@ -54,16 +45,8 @@ public class StateCensusAnalyser {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, "Incorrect file type");
         }
         try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
-            CsvToBean<CSVStateCode> csvToBean = new CsvToBeanBuilder(reader)
-                    .withType(CSVStateCode.class)
-                    .withIgnoreLeadingWhiteSpace(true)
-                    .build();
-            Iterator<CSVStateCode> csvStateCodeIterator = csvToBean.iterator();
-
-            while (csvStateCodeIterator.hasNext()) {
-                numberOfRecords++;
-                csvStateCodeIterator.next();
-            }
+            Iterator<CSVStateCode> csvStateCodeIterator = this.getCSVIterator(reader, CSVStateCode.class);
+            return this.getCount(csvStateCodeIterator);
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER, "Incorrect delimiter or header.");
         } catch (NoSuchFileException e) {
@@ -71,6 +54,24 @@ public class StateCensusAnalyser {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return 0;
+    }
+
+    private <T> int getCount(Iterator<T> iterator) {
+        int numberOfRecords = 0;
+        while (iterator.hasNext()) {
+            numberOfRecords++;
+            iterator.next();
+        }
         return numberOfRecords;
+    }
+
+
+    private <T> Iterator<T> getCSVIterator(Reader reader, Class<T> csvClass) {
+        CsvToBeanBuilder<T> csvToBeanBuilder = new CsvToBeanBuilder(reader)
+                .withType(csvClass)
+                .withIgnoreLeadingWhiteSpace(true);
+        CsvToBean<T> csvToBean = csvToBeanBuilder.build();
+        return csvToBean.iterator();
     }
 }

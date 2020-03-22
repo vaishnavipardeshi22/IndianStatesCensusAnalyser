@@ -1,5 +1,6 @@
 package com.bridgelabz.statecensusanalyser;
 
+import com.bridgelabz.exception.CSVBuilderException;
 import com.bridgelabz.exception.StateCensusAnalyserException;
 
 import java.io.IOException;
@@ -25,23 +26,25 @@ public class StateCensusAnalyser {
         }
         try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
-            Iterator<CSVStateCensus> csvCensusIterator = csvBuilder.getCSVIterator(reader, CSVStateCensus.class);
+            Iterator<CSVStateCensus> csvCensusIterator = null;
+            csvCensusIterator = csvBuilder.getCSVIterator(reader, CSVStateCensus.class);
             return this.getCount(csvCensusIterator);
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
                                                     "Incorrect delimiter or header.");
-        } catch (NoSuchFileException e) {
+        } catch(NoSuchFileException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE,
                                                     "Incorrect file.");
         } catch (IOException e) {
             e.getStackTrace();
+        }catch (CSVBuilderException e) {
+            e.printStackTrace();
         }
         return 0;
     }
 
     //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CODE CSV FILE
     public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws StateCensusAnalyserException {
-        int numberOfRecords = 0;
         String fileFormat = stateCodeDataCsvFilePath.substring(stateCodeDataCsvFilePath.lastIndexOf(".") + 1);
         if (!fileFormat.equals("csv")) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
@@ -54,10 +57,12 @@ public class StateCensusAnalyser {
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
                                                     "Incorrect delimiter or header.");
-        } catch (NoSuchFileException e) {
+        } catch(NoSuchFileException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE,
                                                     "Incorrect file.");
         } catch (IOException e) {
+            e.printStackTrace();
+        }catch (CSVBuilderException e) {
             e.printStackTrace();
         }
         return 0;

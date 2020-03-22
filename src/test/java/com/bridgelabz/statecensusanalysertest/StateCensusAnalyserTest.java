@@ -41,7 +41,7 @@ public class StateCensusAnalyserTest {
     @Test
     public void givenIncorrectIndianStatesCensusCSVFileType_WhenUnmatch_ThenThrowCustomException() {
         try {
-            int numberOfRecord = stateCensusAnalyser.loadCSVDataFileForStateCensusData(STATE_CENSUS_DATA_CSV_INCORRECT_FILE_TYPE);
+            stateCensusAnalyser.loadCSVDataFileForStateCensusData(STATE_CENSUS_DATA_CSV_INCORRECT_FILE_TYPE);
         } catch (StateCensusAnalyserException e) {
             Assert.assertEquals(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, e.type);
         }
@@ -87,7 +87,7 @@ public class StateCensusAnalyserTest {
     @Test
     public void givenIncorrectIndianStatesCodeCSVFileType_WhenUnmatch_ThenThrowCustomException() {
         try {
-            int numberOfRecord = stateCensusAnalyser.loadCSVDataFileForStateCodeData(STATE_CODE_DATA_CSV_FILE_INCORRECT_TYPE);
+            stateCensusAnalyser.loadCSVDataFileForStateCodeData(STATE_CODE_DATA_CSV_FILE_INCORRECT_TYPE);
         } catch (StateCensusAnalyserException e) {
             Assert.assertEquals(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE, e.type);
         }

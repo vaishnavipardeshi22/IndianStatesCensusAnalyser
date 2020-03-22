@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.List;
 
 public class StateCensusAnalyser {
 
@@ -24,21 +25,20 @@ public class StateCensusAnalyser {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
                                                     "Incorrect file type");
         }
-        try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath))) {
+        try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
-            Iterator<CSVStateCensus> csvCensusIterator = null;
-            csvCensusIterator = csvBuilder.getCSVIterator(reader, CSVStateCensus.class);
-            return this.getCount(csvCensusIterator);
+            List<CSVStateCensus> csvStateCensusList = csvBuilder.getCSVList(reader, CSVStateCensus.class);
+            return csvStateCensusList.size();
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
                                                     "Incorrect delimiter or header.");
         } catch(NoSuchFileException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE,
                                                     "Incorrect file.");
+        } catch(CSVBuilderException e) {
+            e.getStackTrace();
         } catch (IOException e) {
             e.getStackTrace();
-        }catch (CSVBuilderException e) {
-            e.printStackTrace();
         }
         return 0;
     }
@@ -52,17 +52,17 @@ public class StateCensusAnalyser {
         }
         try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
-            Iterator<CSVStateCode> csvCensusIterator = csvBuilder.getCSVIterator(reader, CSVStateCode.class);
-            return this.getCount(csvCensusIterator);
+            List<CSVStateCode> csvStateCensusList = csvBuilder.getCSVList(reader, CSVStateCode.class);
+            return csvStateCensusList.size();
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
                                                     "Incorrect delimiter or header.");
         } catch(NoSuchFileException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE,
                                                     "Incorrect file.");
+        } catch(CSVBuilderException e) {
+            e.getStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
-        }catch (CSVBuilderException e) {
             e.printStackTrace();
         }
         return 0;

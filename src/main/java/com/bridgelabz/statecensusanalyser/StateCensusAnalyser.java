@@ -16,6 +16,7 @@ import java.util.List;
 public class StateCensusAnalyser {
 
     List<CSVStateCensus> csvStateCensusList = null;
+    List<CSVStateCode> csvStateCodeList = null;
 
     //MAIN METHOD
     public static void main(String[] args) {
@@ -49,14 +50,15 @@ public class StateCensusAnalyser {
 
     //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CODE CSV FILE
     public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws StateCensusAnalyserException {
+        int numberOfRecords = 0;
         String fileFormat = stateCodeDataCsvFilePath.substring(stateCodeDataCsvFilePath.lastIndexOf(".") + 1);
         if (!fileFormat.equals("csv"))
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
                                                     "Incorrect file type");
         try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
-            List<CSVStateCode> csvStateCensusList = csvBuilder.getCSVList(reader, CSVStateCode.class);
-            return csvStateCensusList.size();
+            csvStateCodeList = csvBuilder.getCSVList(reader, CSVStateCode.class);
+            numberOfRecords = csvStateCodeList.size();
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
                                                     "Incorrect delimiter or header.");
@@ -68,7 +70,7 @@ public class StateCensusAnalyser {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return 0;
+        return numberOfRecords;
     }
 
     //FUNCTION TO COUNT NUMBER OF RECORDS
@@ -81,29 +83,42 @@ public class StateCensusAnalyser {
         return numberOfRecords;
     }
 
-    //FUNCTION TO GET SORTED DATA INTO JSON
+    //FUNCTION TO SORT STATE CENSUS DATA BY STATE NAME
     public String getSortedStateWiseCensusData() throws StateCensusAnalyserException {
         if (csvStateCensusList == null || csvStateCensusList.size() == 0)
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA,
                                                     "No census data");
-        Comparator<CSVStateCensus> censusCSVComparator = Comparator.comparing(census -> census.state);
-        this.sort(censusCSVComparator);
+        Comparator<CSVStateCensus> censusCSVComparator = Comparator.comparing(csvStateCensus -> csvStateCensus.state);
+        this.sortCSVData(censusCSVComparator, csvStateCensusList);
         String sortedStateCensusJson = new Gson().toJson(csvStateCensusList);
         return sortedStateCensusJson;
 
     }
 
+    //FUNCTION TO SORT STATE CODE DATA BY STATE CODE
+    public String getSortedStateCodeWiseData() throws StateCensusAnalyserException {
+        if (csvStateCodeList == null || csvStateCodeList.size() == 0)
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA,
+                                                    "No census data");
+        Comparator<CSVStateCode> stateCodeComparator = Comparator.comparing(CSVStateCode -> CSVStateCode.stateCode);
+        this.sortCSVData(stateCodeComparator, csvStateCodeList);
+        String sortedStateCodeJson = new Gson().toJson(csvStateCodeList);
+        return sortedStateCodeJson;
+    }
+
     //FUNCTION FOR SORTING
-    private void sort(Comparator<CSVStateCensus> censusCSVComparator) {
-        for (int index1 = 0; index1 < csvStateCensusList.size() - 1; index1++) {
-            for (int index2 = 0; index2 < csvStateCensusList.size() - index1 - 1; index2++) {
-                CSVStateCensus census1 = csvStateCensusList.get(index2);
-                CSVStateCensus census2 = csvStateCensusList.get(index2 + 1);
+    private<T> void sortCSVData(Comparator<T> censusCSVComparator, List<T> csvList) {
+        for (int index1 = 0; index1 < csvList.size() - 1; index1++) {
+            for (int index2 = 0; index2 < csvList.size() - index1 - 1; index2++) {
+                T census1 = csvList.get(index2);
+                T census2 = csvList.get(index2 + 1);
                 if (censusCSVComparator.compare(census1, census2) > 0) {
-                    csvStateCensusList.set(index2, census2);
-                    csvStateCensusList.set(index2 + 1, census1);
+                    csvList.set(index2, census2);
+                    csvList.set(index2 + 1, census1);
                 }
             }
         }
     }
+
+
 }

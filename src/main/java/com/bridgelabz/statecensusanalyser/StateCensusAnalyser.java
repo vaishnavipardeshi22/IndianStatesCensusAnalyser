@@ -26,10 +26,9 @@ public class StateCensusAnalyser {
     public int loadCSVDataFileForStateCensusData(String csvFilePath) throws StateCensusAnalyserException {
         int numberOfRecords = 0;
         String fileFormat = csvFilePath.substring(csvFilePath.lastIndexOf(".") + 1);
-        if (!fileFormat.equals("csv")) {
+        if (!fileFormat.equals("csv"))
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
                                                     "Incorrect file type");
-        }
         try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
             csvStateCensusList = csvBuilder.getCSVList(reader, CSVStateCensus.class);
@@ -51,10 +50,9 @@ public class StateCensusAnalyser {
     //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CODE CSV FILE
     public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws StateCensusAnalyserException {
         String fileFormat = stateCodeDataCsvFilePath.substring(stateCodeDataCsvFilePath.lastIndexOf(".") + 1);
-        if (!fileFormat.equals("csv")) {
+        if (!fileFormat.equals("csv"))
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
                                                     "Incorrect file type");
-        }
         try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
             List<CSVStateCode> csvStateCensusList = csvBuilder.getCSVList(reader, CSVStateCode.class);
@@ -85,11 +83,10 @@ public class StateCensusAnalyser {
 
     //FUNCTION TO GET SORTED DATA INTO JSON
     public String getSortedStateWiseCensusData() throws StateCensusAnalyserException {
-        if (csvStateCensusList == null || csvStateCensusList.size() == 0) {
+        if (csvStateCensusList == null || csvStateCensusList.size() == 0)
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA,
                                                     "No census data");
-        }
-        Comparator<CSVStateCensus> censusCSVComparator = Comparator.comparing(census -> census.getState());
+        Comparator<CSVStateCensus> censusCSVComparator = Comparator.comparing(census -> census.state);
         this.sort(censusCSVComparator);
         String sortedStateCensusJson = new Gson().toJson(csvStateCensusList);
         return sortedStateCensusJson;

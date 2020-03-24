@@ -124,4 +124,14 @@ public class StateCensusAnalyserTest {
             e.getStackTrace();
         }
     }
+
+    @Test
+    public void givenIndianCensusData_WhenNoCensusData_ThenThrowException() {
+        try {
+            String sortedStateCensusData = stateCensusAnalyser.getSortedStateWiseCensusData();
+            CSVStateCensus[] censusCSV = new Gson().fromJson(sortedStateCensusData, CSVStateCensus[].class);
+        } catch (StateCensusAnalyserException e) {
+            Assert.assertEquals(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, e.type);
+        }
+    }
 }

@@ -147,4 +147,14 @@ public class StateCensusAnalyserTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void givenStateCodeData_WhenNoCodeData_ThenThrowException() {
+        try {
+            String sortedStateCodeData = stateCensusAnalyser.getSortedStateCodeWiseData();
+            CSVStateCode[] codeCSV = new Gson().fromJson(sortedStateCodeData, CSVStateCode[].class);
+        } catch (StateCensusAnalyserException e) {
+            Assert.assertEquals(StateCensusAnalyserException.ExceptionType.NO_CODE_DATA, e.type);
+        }
+    }
 }

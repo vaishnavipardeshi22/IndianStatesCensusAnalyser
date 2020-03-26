@@ -63,15 +63,11 @@ public class StateCensusAnalyser {
         try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
             Iterator<CSVStateCode> csvStateCodeIterator = csvBuilder.getCSVIterator(reader, CSVStateCode.class);
-            int count = 0;
-            while (csvStateCodeIterator.hasNext()) {
-                CSVStateCode csvStateCode = csvStateCodeIterator.next();
-                count++;
-                CSVStateCensusDAO stateCensusDAO = csvStateCensusDAOMap.get(csvStateCode.state);
-                if (stateCensusDAO == null) continue;
-                stateCensusDAO.stateCode = csvStateCode.stateCode;
-            }
-            numberOfRecords = count;
+            Iterable<CSVStateCode> csvIterable = () -> csvStateCodeIterator;
+            StreamSupport.stream(csvIterable.spliterator(), false)
+                    .filter(csvState -> csvStateCensusDAOMap.get(csvState.state) != null)
+                    .forEach(csvState -> csvStateCensusDAOMap.get(csvState.state).stateCode = csvState.stateCode);
+            numberOfRecords = csvStateCensusDAOMap.size();
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
                                                     "Incorrect delimiter or header.");

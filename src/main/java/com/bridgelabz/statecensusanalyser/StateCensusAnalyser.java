@@ -10,15 +10,15 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class StateCensusAnalyser {
 
-    List<CSVStateCensusDAO> csvStateCensusList = null;
-    List<CSVStateCode> csvStateCodeList = null;
-
+    Map<String, CSVStateCensusDAO> csvStateCensusDAOMap = null;
 
     public StateCensusAnalyser() {
-        this.csvStateCensusList = new ArrayList<CSVStateCensusDAO>();
+        this.csvStateCensusDAOMap = new HashMap<String, CSVStateCensusDAO>();
     }
 
     //MAIN METHOD
@@ -36,10 +36,10 @@ public class StateCensusAnalyser {
         try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
             Iterator<CSVStateCensus> csvStateCensusIterator = csvBuilder.getCSVIterator(reader, CSVStateCensus.class);
-            while (csvStateCensusIterator.hasNext()) {
-                this.csvStateCensusList.add(new CSVStateCensusDAO(csvStateCensusIterator.next()));
-            }
-            numberOfRecords = csvStateCensusList.size();
+            Iterable<CSVStateCensus> stateCensusIterable = () -> csvStateCensusIterator;
+            StreamSupport.stream(stateCensusIterable.spliterator(), false)
+                    .forEach(censusCSV -> csvStateCensusDAOMap.put(censusCSV.state, new CSVStateCensusDAO(censusCSV)));
+            numberOfRecords = csvStateCensusDAOMap.size();
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
                                                     "Incorrect delimiter or header.");
@@ -62,8 +62,15 @@ public class StateCensusAnalyser {
                                                     "Incorrect file type");
         try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
-            List<CSVStateCode> stateCodeList = csvBuilder.getCSVList(reader, CSVStateCode.class);
-            numberOfRecords = stateCodeList.size();
+            Iterator<CSVStateCode> csvStateCodeIterator = csvBuilder.getCSVIterator(reader, CSVStateCode.class);
+            int count = getCount(csvStateCodeIterator);
+            while (csvStateCodeIterator.hasNext()) {
+                CSVStateCode csvStateCode = csvStateCodeIterator.next();
+                CSVStateCensusDAO stateCensusDAO = csvStateCensusDAOMap.get(csvStateCode.state);
+                if (stateCensusDAO == null) continue;
+                stateCensusDAO.stateCode = csvStateCode.stateCode;
+            }
+            numberOfRecords = count;
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
                                                     "Incorrect delimiter or header.");
@@ -87,25 +94,16 @@ public class StateCensusAnalyser {
         return numberOfRecords;
     }
 
-    //FUNCTION TO SORT STATE CENSUS DATA BY STATE NAME
+    //FUNCTION TO SORT STATE CENSUS DATA
     public String getSortedStateWiseCensusData() throws StateCensusAnalyserException {
-        if (csvStateCensusList == null || csvStateCensusList.size() == 0)
+        if (csvStateCensusDAOMap == null || csvStateCensusDAOMap.size() == 0)
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, "No census data");
         Comparator<CSVStateCensusDAO> censusCSVComparator = Comparator.comparing(csvStateCensus -> csvStateCensus.state);
-        this.sortCSVData(censusCSVComparator, csvStateCensusList);
-        String sortedStateCensusJson = new Gson().toJson(csvStateCensusList);
+        List<CSVStateCensusDAO> censusDAOList = csvStateCensusDAOMap.values().stream().collect(Collectors.toList());
+        this.sortCSVData(censusCSVComparator, censusDAOList);
+        String sortedStateCensusJson = new Gson().toJson(censusDAOList);
         return sortedStateCensusJson;
 
-    }
-
-    //FUNCTION TO SORT STATE CODE DATA BY STATE CODE
-    public String getSortedStateCodeWiseData() throws StateCensusAnalyserException {
-        if (csvStateCodeList == null || csvStateCodeList.size() == 0)
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CODE_DATA, "No code data");
-        Comparator<CSVStateCode> stateCodeComparator = Comparator.comparing(CSVStateCode -> CSVStateCode.stateCode);
-        this.sortCSVData(stateCodeComparator, csvStateCodeList);
-        String sortedStateCodeJson = new Gson().toJson(csvStateCodeList);
-        return sortedStateCodeJson;
     }
 
     //FUNCTION FOR SORTING

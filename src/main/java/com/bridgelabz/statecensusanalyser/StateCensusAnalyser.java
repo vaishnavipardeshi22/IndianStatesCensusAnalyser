@@ -66,6 +66,7 @@ public class StateCensusAnalyser {
             int count = 0;
             while (csvStateCodeIterator.hasNext()) {
                 CSVStateCode csvStateCode = csvStateCodeIterator.next();
+                count++;
                 CSVStateCensusDAO stateCensusDAO = csvStateCensusDAOMap.get(csvStateCode.state);
                 if (stateCensusDAO == null) continue;
                 stateCensusDAO.stateCode = csvStateCode.stateCode;
@@ -84,18 +85,6 @@ public class StateCensusAnalyser {
         return numberOfRecords;
     }
 
-    //FUNCTION TO SORT STATE CENSUS DATA
-    public String getSortedStateWiseCensusData() throws StateCensusAnalyserException {
-        if (csvStateCensusDAOMap == null || csvStateCensusDAOMap.size() == 0)
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, "No census data");
-        Comparator<CSVStateCensusDAO> censusCSVComparator = Comparator.comparing(csvStateCensus -> csvStateCensus.state);
-        List<CSVStateCensusDAO> censusDAOList = csvStateCensusDAOMap.values().stream().collect(Collectors.toList());
-        this.sortCSVData(censusCSVComparator, censusDAOList);
-        String sortedStateCensusJson = new Gson().toJson(censusDAOList);
-        return sortedStateCensusJson;
-
-    }
-
     //FUNCTION FOR SORTING
     private<T> void sortCSVData(Comparator<T> censusCSVComparator, List<T> csvList) {
         for (int index1 = 0; index1 < csvList.size() - 1; index1++) {
@@ -108,5 +97,28 @@ public class StateCensusAnalyser {
                 }
             }
         }
+    }
+
+    //FUNCTION TO SORT STATE CENSUS DATA
+    public String getSortedStateWiseCensusData() throws StateCensusAnalyserException {
+        if (csvStateCensusDAOMap == null || csvStateCensusDAOMap.size() == 0)
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, "No census data");
+        Comparator<CSVStateCensusDAO> censusCSVComparator = Comparator.comparing(csvStateCensus -> csvStateCensus.state);
+        List<CSVStateCensusDAO> censusDAOList = csvStateCensusDAOMap.values().stream().collect(Collectors.toList());
+        this.sortCSVData(censusCSVComparator, censusDAOList);
+        String sortedStateCensusJson = new Gson().toJson(censusDAOList);
+        return sortedStateCensusJson;
+    }
+
+    //FUNCTION TO SORT CENSUS DATA BY POPULATION
+    public String getSortedPopulationWiseCensusData() throws StateCensusAnalyserException {
+        if (csvStateCensusDAOMap == null || csvStateCensusDAOMap.size() == 0)
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, "No census data");
+        Comparator<CSVStateCensusDAO> censusCSVComparator = Comparator.comparing(csvStateCensus -> csvStateCensus.population);
+        List<CSVStateCensusDAO> censusDAOList = csvStateCensusDAOMap.values().stream().collect(Collectors.toList());
+        this.sortCSVData(censusCSVComparator, censusDAOList);
+        Collections.reverse(censusDAOList);
+        String sortedStateCensusJson = new Gson().toJson(censusDAOList);
+        return sortedStateCensusJson;
     }
 }

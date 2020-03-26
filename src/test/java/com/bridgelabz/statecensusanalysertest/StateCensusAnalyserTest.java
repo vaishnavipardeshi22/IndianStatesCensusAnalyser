@@ -71,8 +71,9 @@ public class StateCensusAnalyserTest {
     @Test
     public void givenIndianStatesCodeCSVFile_WhenMatchNoOfRecord_ThenReturnTrue() {
         try {
+            stateCensusAnalyser.loadCSVDataFileForStateCensusData(STATE_CENSUS_DATA_CSV_FILE_PATH);
             int numberOfRecord = stateCensusAnalyser.loadCSVDataFileForStateCodeData(STATE_CODE_DATA_CSV_FILE_PATH);
-            Assert.assertEquals(37, numberOfRecord);
+            Assert.assertEquals(29, numberOfRecord);
         } catch (StateCensusAnalyserException e) {
             e.printStackTrace();
         }

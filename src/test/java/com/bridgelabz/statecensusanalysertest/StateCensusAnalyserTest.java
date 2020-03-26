@@ -144,7 +144,7 @@ public class StateCensusAnalyserTest {
             stateCensusAnalyser.loadCSVDataFileForStateCodeData(STATE_CODE_DATA_CSV_FILE_PATH);
             String sortedStateCodeData = stateCensusAnalyser.getSortedStateWiseCensusData();
             CSVStateCode[] csvStateCodes = new Gson().fromJson(sortedStateCodeData, CSVStateCode[].class);
-            Assert.assertEquals("AD", csvStateCodes[0].stateCode);
+            Assert.assertEquals("AP", csvStateCodes[0].stateCode);
         } catch (StateCensusAnalyserException e) {
             e.printStackTrace();
         }
@@ -167,6 +167,18 @@ public class StateCensusAnalyserTest {
             String sortedPopulationWiseCensusData = stateCensusAnalyser.getSortedPopulationWiseCensusData();
             CSVStateCensus[] csvStateCensus = new Gson().fromJson(sortedPopulationWiseCensusData, CSVStateCensus[].class);
             Assert.assertEquals(199812341, csvStateCensus[0].population);
+        } catch (StateCensusAnalyserException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void givenStateCensusData_WhenSortedByPopulationDensity_ThenReturnSortedResult() {
+        try {
+            stateCensusAnalyser.loadCSVDataFileForStateCensusData(STATE_CENSUS_DATA_CSV_FILE_PATH);
+            String sortedPopulationDensityWiseCensusData = stateCensusAnalyser.getSortedPopulationDensityWiseCensusData();
+            CSVStateCensus[] csvStateCensus = new Gson().fromJson(sortedPopulationDensityWiseCensusData, CSVStateCensus[].class);
+            Assert.assertEquals(1102, csvStateCensus[0].densityPerSqKm);
         } catch (StateCensusAnalyserException e) {
             e.printStackTrace();
         }

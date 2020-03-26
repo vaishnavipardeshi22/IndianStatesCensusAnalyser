@@ -118,6 +118,7 @@ public class StateCensusAnalyserTest {
     public void givenIndianCensusData_WhenSortedState_thenReturnSortedResult() {
         try {
             stateCensusAnalyser.loadCSVDataFileForStateCensusData(STATE_CENSUS_DATA_CSV_FILE_PATH);
+            stateCensusAnalyser.loadCSVDataFileForStateCodeData(STATE_CODE_DATA_CSV_FILE_PATH);
             String sortedStateCensusData = stateCensusAnalyser.getSortedStateWiseCensusData();
             CSVStateCensus[] censusCSV = new Gson().fromJson(sortedStateCensusData, CSVStateCensus[].class);
             Assert.assertEquals("Andhra Pradesh", censusCSV[0].state);
@@ -139,6 +140,7 @@ public class StateCensusAnalyserTest {
     @Test
     public void givenStateCodeData_WhenSortedCode_ThenReturnSortedResult() {
         try {
+            stateCensusAnalyser.loadCSVDataFileForStateCensusData(STATE_CENSUS_DATA_CSV_FILE_PATH);
             stateCensusAnalyser.loadCSVDataFileForStateCodeData(STATE_CODE_DATA_CSV_FILE_PATH);
             String sortedStateCodeData = stateCensusAnalyser.getSortedStateWiseCensusData();
             CSVStateCode[] csvStateCodes = new Gson().fromJson(sortedStateCodeData, CSVStateCode[].class);
@@ -155,6 +157,18 @@ public class StateCensusAnalyserTest {
             CSVStateCode[] codeCSV = new Gson().fromJson(sortedStateCodeData, CSVStateCode[].class);
         } catch (StateCensusAnalyserException e) {
             Assert.assertEquals(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, e.type);
+        }
+    }
+
+    @Test
+    public void givenStateCensusData_WhenSortedByPopulation_ThenReturnSortedResult() {
+        try {
+            stateCensusAnalyser.loadCSVDataFileForStateCensusData(STATE_CENSUS_DATA_CSV_FILE_PATH);
+            String sortedPopulationWiseCensusData = stateCensusAnalyser.getSortedPopulationWiseCensusData();
+            CSVStateCensus[] csvStateCensus = new Gson().fromJson(sortedPopulationWiseCensusData, CSVStateCensus[].class);
+            Assert.assertEquals(199812341, csvStateCensus[0].population);
+        } catch (StateCensusAnalyserException e) {
+            e.printStackTrace();
         }
     }
 }

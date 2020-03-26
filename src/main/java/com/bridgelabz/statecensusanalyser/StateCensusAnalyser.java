@@ -63,7 +63,7 @@ public class StateCensusAnalyser {
         try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
             Iterator<CSVStateCode> csvStateCodeIterator = csvBuilder.getCSVIterator(reader, CSVStateCode.class);
-            int count = getCount(csvStateCodeIterator);
+            int count = 0;
             while (csvStateCodeIterator.hasNext()) {
                 CSVStateCode csvStateCode = csvStateCodeIterator.next();
                 CSVStateCensusDAO stateCensusDAO = csvStateCensusDAOMap.get(csvStateCode.state);
@@ -80,16 +80,6 @@ public class StateCensusAnalyser {
             e.getStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        return numberOfRecords;
-    }
-
-    //FUNCTION TO COUNT NUMBER OF RECORDS
-    private <T> int getCount(Iterator<T> iterator) {
-        int numberOfRecords = 0;
-        while (iterator.hasNext()) {
-            numberOfRecords++;
-            iterator.next();
         }
         return numberOfRecords;
     }

@@ -3,6 +3,7 @@ package com.bridgelabz.statecensusanalyser;
 public class CSVStateCensusDAO {
 
     public String state;
+    public String stateCode;
     public int areaInSqKm;
     public int densityPerSqKm;
     public int population;

@@ -132,4 +132,15 @@ public class StateCensusAnalyser {
         String sortedStateCensusJson = new Gson().toJson(censusDAOList);
         return sortedStateCensusJson;
     }
+
+    public String getSortedStateAreaWiseCensusData() throws StateCensusAnalyserException {
+        if (csvStateCensusDAOMap == null || csvStateCensusDAOMap.size() == 0)
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, "No census data");
+        Comparator<CSVStateCensusDAO> censusCSVComparator = Comparator.comparing(csvStateCensus -> csvStateCensus.areaInSqKm);
+        List<CSVStateCensusDAO> censusDAOList = csvStateCensusDAOMap.values().stream().collect(Collectors.toList());
+        this.sortCSVData(censusCSVComparator, censusDAOList);
+        Collections.reverse(censusDAOList);
+        String sortedStateCensusJson = new Gson().toJson(censusDAOList);
+        return sortedStateCensusJson;
+    }
 }

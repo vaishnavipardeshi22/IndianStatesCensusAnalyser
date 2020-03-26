@@ -140,7 +140,7 @@ public class StateCensusAnalyserTest {
     public void givenStateCodeData_WhenSortedCode_ThenReturnSortedResult() {
         try {
             stateCensusAnalyser.loadCSVDataFileForStateCodeData(STATE_CODE_DATA_CSV_FILE_PATH);
-            String sortedStateCodeData = stateCensusAnalyser.getSortedStateCodeWiseData();
+            String sortedStateCodeData = stateCensusAnalyser.getSortedStateWiseCensusData();
             CSVStateCode[] csvStateCodes = new Gson().fromJson(sortedStateCodeData, CSVStateCode[].class);
             Assert.assertEquals("AD", csvStateCodes[0].stateCode);
         } catch (StateCensusAnalyserException e) {
@@ -151,10 +151,10 @@ public class StateCensusAnalyserTest {
     @Test
     public void givenStateCodeData_WhenNoCodeData_ThenThrowException() {
         try {
-            String sortedStateCodeData = stateCensusAnalyser.getSortedStateCodeWiseData();
+            String sortedStateCodeData = stateCensusAnalyser.getSortedStateWiseCensusData();
             CSVStateCode[] codeCSV = new Gson().fromJson(sortedStateCodeData, CSVStateCode[].class);
         } catch (StateCensusAnalyserException e) {
-            Assert.assertEquals(StateCensusAnalyserException.ExceptionType.NO_CODE_DATA, e.type);
+            Assert.assertEquals(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, e.type);
         }
     }
 }

@@ -32,7 +32,7 @@ public class StateCensusAnalyser {
         String fileFormat = csvFilePath.substring(csvFilePath.lastIndexOf(".") + 1);
         if (!fileFormat.equals("csv"))
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
-                                                    "Incorrect file type");
+                    "Incorrect file type");
         try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));) {
             ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
             Iterator<CSVStateCensus> csvStateCensusIterator = csvBuilder.getCSVIterator(reader, CSVStateCensus.class);
@@ -42,7 +42,7 @@ public class StateCensusAnalyser {
             numberOfRecords = csvStateCensusDAOMap.size();
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
-                                                    "Incorrect delimiter or header.");
+                    "Incorrect delimiter or header.");
         } catch (NoSuchFileException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
         } catch (CSVBuilderException e) {
@@ -52,6 +52,7 @@ public class StateCensusAnalyser {
         }
         return numberOfRecords;
     }
+
 
     //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CODE CSV FILE
     public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws StateCensusAnalyserException {
@@ -118,6 +119,7 @@ public class StateCensusAnalyser {
         return sortedStateCensusJson;
     }
 
+    //FUNCTION TO SORT CENSUS DATA BY POPULATION DENSITY
     public String getSortedPopulationDensityWiseCensusData() throws StateCensusAnalyserException{
         if (csvStateCensusDAOMap == null || csvStateCensusDAOMap.size() == 0)
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, "No census data");
@@ -129,6 +131,7 @@ public class StateCensusAnalyser {
         return sortedStateCensusJson;
     }
 
+    //FUNCTION TO SORT CENSUS DATA BY AREA
     public String getSortedStateAreaWiseCensusData() throws StateCensusAnalyserException {
         if (csvStateCensusDAOMap == null || csvStateCensusDAOMap.size() == 0)
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, "No census data");
@@ -139,4 +142,29 @@ public class StateCensusAnalyser {
         String sortedStateCensusJson = new Gson().toJson(censusDAOList);
         return sortedStateCensusJson;
     }
+
+    //FUNCTION TO LOAD US CENSUS DATA
+    public int loadCSVDataFileForUSCensusData(String usCensusDataCsvFilePath) throws StateCensusAnalyserException {
+        int numberOfRecords = 0;
+        String fileFormat = usCensusDataCsvFilePath.substring(usCensusDataCsvFilePath.lastIndexOf(".") + 1);
+        if (!fileFormat.equals("csv"))
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
+                    "Incorrect file type");
+        try (Reader reader = Files.newBufferedReader(Paths.get(usCensusDataCsvFilePath))) {
+            ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
+            List<CSVUSCensus> csvUSCensusList = csvBuilder.getCSVList(reader,CSVUSCensus.class);
+            numberOfRecords = csvUSCensusList.size();
+        } catch (RuntimeException e) {
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
+                    "Incorrect delimiter or header.");
+        } catch (NoSuchFileException e) {
+            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
+        } catch (CSVBuilderException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.getStackTrace();
+        }
+        return numberOfRecords;
+    }
 }
+

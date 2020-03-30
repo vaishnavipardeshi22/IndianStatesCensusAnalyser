@@ -1,9 +1,7 @@
 package com.bridgelabz.statecensusanalysertest;
 
 import com.bridgelabz.exception.StateCensusAnalyserException;
-import com.bridgelabz.statecensusanalyser.CSVStateCensus;
-import com.bridgelabz.statecensusanalyser.CSVStateCode;
-import com.bridgelabz.statecensusanalyser.StateCensusAnalyser;
+import com.bridgelabz.statecensusanalyser.*;
 import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
@@ -218,6 +216,18 @@ public class StateCensusAnalyserTest {
             int numberOfRecords = stateCensusAnalyser.loadStateCensusCSVData(StateCensusAnalyser.Country.US,
                                                                                 US_CENSUS_DATA_CSV_FILE_PATH);
             Assert.assertEquals(51, numberOfRecords);
+        } catch (StateCensusAnalyserException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void givenUSCensusData_WhenSortedByPopulation_ThenReturnSortedResult() {
+        try {
+            stateCensusAnalyser.loadStateCensusCSVData(StateCensusAnalyser.Country.US, US_CENSUS_DATA_CSV_FILE_PATH);
+            String sortedPopulationWiseCensusData = stateCensusAnalyser.getSortedPopulationWiseCensusData();
+            CSVCensusDAO[] csvusCensuses = new Gson().fromJson(sortedPopulationWiseCensusData, CSVCensusDAO[].class);
+            Assert.assertEquals(37253956, csvusCensuses[0].population);
         } catch (StateCensusAnalyserException e) {
             e.printStackTrace();
         }

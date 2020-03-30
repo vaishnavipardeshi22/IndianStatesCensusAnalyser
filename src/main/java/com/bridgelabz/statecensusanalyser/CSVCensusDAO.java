@@ -17,6 +17,7 @@ public class CSVCensusDAO {
 
     public CSVCensusDAO(CSVUSCensus usCensusCSV) {
         this.state = usCensusCSV.usState;
+        this.stateCode = usCensusCSV.stateId;
         this.areaInSqKm = usCensusCSV.totalArea;
         this.densityPerSqKm = usCensusCSV.populationDensity;
         this.population = usCensusCSV.usPopulation;

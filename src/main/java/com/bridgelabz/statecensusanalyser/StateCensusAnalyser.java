@@ -1,24 +1,18 @@
 package com.bridgelabz.statecensusanalyser;
 
-import com.bridgelabz.exception.CSVBuilderException;
 import com.bridgelabz.exception.StateCensusAnalyserException;
 import com.google.gson.Gson;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class StateCensusAnalyser {
 
+    List<CSVCensusDAO> csvCensusDAOList = null;
     Map<String, CSVCensusDAO> csvStateCensusDAOMap = null;
 
     public StateCensusAnalyser() {
-        this.csvStateCensusDAOMap = new HashMap<String, CSVCensusDAO>();
+        this.csvStateCensusDAOMap = new HashMap<>();
     }
 
     //MAIN METHOD
@@ -26,90 +20,14 @@ public class StateCensusAnalyser {
         System.out.println("******************** WELCOME TO INDIAN STATES CENSUS ANALYSER ********************");
     }
 
-    //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CENSUS CSV FILE
-    public int loadCSVDataFileForStateCensusData(String csvFilePath) throws StateCensusAnalyserException {
-        int numberOfRecords = 0;
-        String fileFormat = csvFilePath.substring(csvFilePath.lastIndexOf(".") + 1);
-        if (!fileFormat.equals("csv"))
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
-                    "Incorrect file type");
-        try (Reader reader = Files.newBufferedReader(Paths.get(csvFilePath));) {
-            ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
-            Iterator<CSVStateCensus> csvStateCensusIterator = csvBuilder.getCSVIterator(reader, CSVStateCensus.class);
-            Iterable<CSVStateCensus> stateCensusIterable = () -> csvStateCensusIterator;
-            StreamSupport.stream(stateCensusIterable.spliterator(), false)
-                    .forEach(censusCSV -> csvStateCensusDAOMap.put(censusCSV.state, new CSVCensusDAO(censusCSV)));
-            numberOfRecords = csvStateCensusDAOMap.size();
-        } catch (RuntimeException e) {
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
-                    "Incorrect delimiter or header.");
-        } catch (NoSuchFileException e) {
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
-        } catch (CSVBuilderException e) {
-            e.getStackTrace();
-        } catch (IOException e) {
-            e.getStackTrace();
-        }
-        return numberOfRecords;
-    }
-
-    //FUNCTION TO LOAD CSV DATA AND COUNT NUMBER OF RECORDS IN STATE CODE CSV FILE
-    public int loadCSVDataFileForStateCodeData(String stateCodeDataCsvFilePath) throws StateCensusAnalyserException {
-        int numberOfRecords = 0;
-        String fileFormat = stateCodeDataCsvFilePath.substring(stateCodeDataCsvFilePath.lastIndexOf(".") + 1);
-        if (!fileFormat.equals("csv"))
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
-                                                    "Incorrect file type");
-        try (Reader reader = Files.newBufferedReader(Paths.get(stateCodeDataCsvFilePath))) {
-            ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
-            Iterator<CSVStateCode> csvStateCodeIterator = csvBuilder.getCSVIterator(reader, CSVStateCode.class);
-            Iterable<CSVStateCode> csvIterable = () -> csvStateCodeIterator;
-            StreamSupport.stream(csvIterable.spliterator(), false)
-                    .filter(csvState -> csvStateCensusDAOMap.get(csvState.state) != null)
-                    .forEach(csvState -> csvStateCensusDAOMap.get(csvState.state).stateCode = csvState.stateCode);
-            numberOfRecords = csvStateCensusDAOMap.size();
-        } catch (RuntimeException e) {
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
-                                                    "Incorrect delimiter or header.");
-        } catch (NoSuchFileException e) {
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
-        } catch (CSVBuilderException e) {
-            e.getStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return numberOfRecords;
-    }
-
-    //FUNCTION TO LOAD US CENSUS DATA
-    public int loadCSVDataFileForUSCensusData(String usCensusDataCsvFilePath) throws StateCensusAnalyserException {
-        int numberOfRecords = 0;
-        String fileFormat = usCensusDataCsvFilePath.substring(usCensusDataCsvFilePath.lastIndexOf(".") + 1);
-        if (!fileFormat.equals("csv"))
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,
-                    "Incorrect file type");
-        try (Reader reader = Files.newBufferedReader(Paths.get(usCensusDataCsvFilePath))) {
-            ICSVBuilder csvBuilder = CSVBuilderFactory.createCSVBuilder();
-            Iterator<CSVUSCensus> csvStateCensusIterator = csvBuilder.getCSVIterator(reader, CSVUSCensus.class);
-            Iterable<CSVUSCensus> stateCensusIterable = () -> csvStateCensusIterator;
-            StreamSupport.stream(stateCensusIterable.spliterator(), false)
-                    .forEach(censusCSV -> csvStateCensusDAOMap.put(censusCSV.usState, new CSVCensusDAO(censusCSV)));
-            numberOfRecords = csvStateCensusDAOMap.size();
-        } catch (RuntimeException e) {
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,
-                    "Incorrect delimiter or header.");
-        } catch (NoSuchFileException e) {
-            throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
-        } catch (CSVBuilderException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.getStackTrace();
-        }
-        return numberOfRecords;
+    public int loadStateCensusCSVData(Country country, String... csvFilePath) throws StateCensusAnalyserException {
+        csvStateCensusDAOMap = CensusAdapterFactory.getCensusData(country, csvFilePath);
+        csvCensusDAOList = csvStateCensusDAOMap.values().stream().collect(Collectors.toList());
+        return csvStateCensusDAOMap.size();
     }
 
     //FUNCTION FOR SORTING
-    private<T> void sortCSVData(Comparator<T> censusCSVComparator, List<T> csvList) {
+    private <T> void sortCSVData(Comparator<T> censusCSVComparator, List<T> csvList) {
         for (int index1 = 0; index1 < csvList.size() - 1; index1++) {
             for (int index2 = 0; index2 < csvList.size() - index1 - 1; index2++) {
                 T census1 = csvList.get(index2);
@@ -146,7 +64,7 @@ public class StateCensusAnalyser {
     }
 
     //FUNCTION TO SORT CENSUS DATA BY POPULATION DENSITY
-    public String getSortedPopulationDensityWiseCensusData() throws StateCensusAnalyserException{
+    public String getSortedPopulationDensityWiseCensusData() throws StateCensusAnalyserException {
         if (csvStateCensusDAOMap == null || csvStateCensusDAOMap.size() == 0)
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_CENSUS_DATA, "No census data");
         Comparator<CSVCensusDAO> censusCSVComparator = Comparator.comparing(csvStateCensus -> csvStateCensus.densityPerSqKm);
@@ -168,5 +86,7 @@ public class StateCensusAnalyser {
         String sortedStateCensusJson = new Gson().toJson(censusDAOList);
         return sortedStateCensusJson;
     }
+
+    public enum Country {INDIA, US}
 }
 

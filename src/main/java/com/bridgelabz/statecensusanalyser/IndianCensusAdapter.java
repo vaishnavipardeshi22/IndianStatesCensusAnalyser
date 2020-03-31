@@ -21,7 +21,8 @@ public class IndianCensusAdapter extends CensusAdapter {
         return loadStateCodeCSVData(censusDAOMap, csvFilePath[1]);
     }
 
-    private Map<String, CSVCensusDAO> loadStateCodeCSVData(Map<String, CSVCensusDAO> censusDAOMap, String csvFilePath) throws StateCensusAnalyserException {
+    private Map<String, CSVCensusDAO> loadStateCodeCSVData(Map<String, CSVCensusDAO> censusDAOMap, String csvFilePath)
+                                        throws StateCensusAnalyserException {
         String fileFormat = csvFilePath.substring(csvFilePath.lastIndexOf(".") + 1);
         if (!fileFormat.equals("csv"))
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_FILE_TYPE,

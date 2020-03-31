@@ -211,4 +211,16 @@ public class StateCensusAnalyserTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void givenUSCensusData_WhenSortedByPopulationDensity_ThenReturnSortedResult() {
+        try {
+            usCensusAnalyser.loadStateCensusCSVData(US, US_CENSUS_DATA_CSV_FILE_PATH);
+            String sortedPopulationDensityWiseCensusData = usCensusAnalyser.getSortedCensusData(StateCensusAnalyser.SortingMode.DENSITY);
+            CSVUSCensus[] csvusCensuses = new Gson().fromJson(sortedPopulationDensityWiseCensusData, CSVUSCensus[].class);
+            Assert.assertEquals(3805.61, csvusCensuses[0].populationDensity, 0);
+        } catch (StateCensusAnalyserException e) {
+            e.printStackTrace();
+        }
+    }
 }

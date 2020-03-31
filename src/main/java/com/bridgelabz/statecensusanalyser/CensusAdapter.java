@@ -33,7 +33,7 @@ public abstract class CensusAdapter {
             } else if (censusCSVClass.getName().equals("com.bridgelabz.statecensusanalyser.CSVUSCensus")) {
                 StreamSupport.stream(stateCensusIterable.spliterator(), false)
                         .map(CSVUSCensus.class::cast)
-                        .forEach(censusCSV -> csvCensusDAOMap.put(censusCSV.usState, new CSVCensusDAO(censusCSV)));
+                        .forEach(censusCSV -> csvCensusDAOMap.put(censusCSV.state, new CSVCensusDAO(censusCSV)));
             }
         } catch (RuntimeException e) {
             throw new StateCensusAnalyserException(StateCensusAnalyserException.ExceptionType.NO_SUCH_DELIMITER_OR_HEADER,

@@ -19,9 +19,9 @@ public class OpenCSVBuilder<T> implements ICSVBuilder {
             Iterator<T> csvCensusIterator = csvToBean.iterator();
             return csvCensusIterator;
         } catch (IllegalStateException e) {
-            throw new CSVBuilderException(CSVBuilderException.ExceptionType.NO_SUCH_FILE,
-                    "Incorrect file.");
-        }    }
+            throw new CSVBuilderException(CSVBuilderException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
+        }
+    }
 
     @Override
     public List getCSVList(Reader reader, Class csvClass) throws CSVBuilderException {
@@ -35,8 +35,7 @@ public class OpenCSVBuilder<T> implements ICSVBuilder {
                     .withIgnoreLeadingWhiteSpace(true);
             return csvToBeanBuilder.build();
         } catch (IllegalStateException e) {
-            throw new CSVBuilderException(CSVBuilderException.ExceptionType.NO_SUCH_FILE,
-                    "Incorrect file.");
+            throw new CSVBuilderException(CSVBuilderException.ExceptionType.NO_SUCH_FILE, "Incorrect file.");
         }
     }
 }
